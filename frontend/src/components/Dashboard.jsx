@@ -2,43 +2,18 @@
 import React from 'react';
 import { Shield, AlertTriangle, Clock, ShieldCheck, TrendingUp, BarChart3, Radio } from 'lucide-react';
 
-export default function Dashboard({ metrics, files = [], currentUser = '', hasScanned, setHasScanned }) {
+export default function Dashboard({ 
+  metrics, 
+  files = [], 
+  currentUser = '', 
+  hasScanned, 
+  isScanning, 
+  scanProgress, 
+  scanLogs, 
+  onStartScan, 
+  onResetScan 
+}) {
   const { securityScore, mitigatedCount, totalVulnerabilities, meanTimeToDetect, meanTimeToMitigate, activePolicies } = metrics;
-
-  const [isScanning, setIsScanning] = React.useState(false);
-  const [scanProgress, setScanProgress] = React.useState(0);
-  const [scanLogs, setScanLogs] = React.useState([]);
-
-  const startAuditScan = () => {
-    setIsScanning(true);
-    setScanProgress(0);
-    setScanLogs([]);
-    
-    const logs = [
-      "Initializing AegisShield Security Audit Engine...",
-      "Checking software supply chain dependencies... Found flat-dependency-parser@1.0.4",
-      "Evaluating dependency vulnerability checksums... CVE-2026-38291 [CRITICAL] active.",
-      "Analyzing REST API Gateway paths... Found horizontal privilege escalation BOLA vulnerability.",
-      "Auditing LLM support bot instructions mapping... Input sanitization missing.",
-      "Auditing session identity policies... HTTPOnly flag missing in cookie setup.",
-      "Finalizing scoring calculations... Posture index computed successfully."
-    ];
-
-    let currentStep = 0;
-    const interval = setInterval(() => {
-      if (currentStep < logs.length) {
-        setScanLogs(prev => [...prev, logs[currentStep]]);
-        setScanProgress(Math.min(Math.floor((currentStep + 1) * 14.3), 100));
-        currentStep++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setHasScanned(true);
-          setIsScanning(false);
-        }, 500);
-      }
-    }, 350);
-  };
 
   // Calculate SVG stroke parameters for circular score dial
   const radius = 80;
@@ -386,7 +361,7 @@ export default function Dashboard({ metrics, files = [], currentUser = '', hasSc
               padding: '0.85rem 1.5rem',
               fontSize: '1rem'
             }}
-            onClick={startAuditScan}
+            onClick={onStartScan}
           >
             <Radio size={18} style={{ marginRight: '0.25rem' }} />
             Run Security Audit Scan
@@ -464,7 +439,7 @@ export default function Dashboard({ metrics, files = [], currentUser = '', hasSc
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
-            onClick={() => setHasScanned(false)}
+            onClick={onResetScan}
             style={{
               background: 'transparent',
               border: '1px solid rgba(0, 242, 254, 0.25)',

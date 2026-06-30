@@ -11,6 +11,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
   const [hasScanned, setHasScanned] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanLogs, setScanLogs] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [files, setFiles] = useState([]);
   const [policies, setPolicies] = useState({
@@ -28,8 +31,45 @@ export default function App() {
     activePolicies: 0
   });
   
-  // Track if package.json has been mitigated (passed to SBOM visualizer)
   const [isSbomFixed, setIsSbomFixed] = useState(false);
+
+  const handleStartAuditScan = () => {
+    setIsScanning(true);
+    setScanProgress(0);
+    setScanLogs([]);
+    
+    const logs = [
+      "Initializing AegisShield Security Audit Engine...",
+      "Checking software supply chain dependencies... Found flat-dependency-parser@1.0.4",
+      "Evaluating dependency vulnerability checksums... CVE-2026-38291 [CRITICAL] active.",
+      "Analyzing REST API Gateway paths... Found horizontal privilege escalation BOLA vulnerability.",
+      "Auditing LLM support bot instructions mapping... Input sanitization missing.",
+      "Auditing session identity policies... HTTPOnly flag missing in cookie setup.",
+      "Finalizing scoring calculations... Posture index computed successfully."
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      if (currentStep < logs.length) {
+        setScanLogs(prev => [...prev, logs[currentStep]]);
+        setScanProgress(Math.min(Math.floor((currentStep + 1) * 14.3), 100));
+        currentStep++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          setHasScanned(true);
+          setIsScanning(false);
+        }, 500);
+      }
+    }, 350);
+  };
+
+  const handleResetAuditScan = () => {
+    setHasScanned(false);
+    setIsScanning(false);
+    setScanProgress(0);
+    setScanLogs([]);
+  };
 
   useEffect(() => {
     fetchInitialState();
@@ -200,7 +240,11 @@ export default function App() {
             files={files} 
             currentUser={currentUser} 
             hasScanned={hasScanned} 
-            setHasScanned={setHasScanned} 
+            isScanning={isScanning}
+            scanProgress={scanProgress}
+            scanLogs={scanLogs}
+            onStartScan={handleStartAuditScan}
+            onResetScan={handleResetAuditScan}
           />
         )}
         {activeTab === 'emulator' && (
