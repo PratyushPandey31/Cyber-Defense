@@ -655,6 +655,82 @@ export default function Dashboard({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Active Threat Intelligence & Policy Guardrails Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        
+        {/* Global Threat Intelligence Map */}
+        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', height: '240px' }}>
+          <h3 className="sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Radio size={16} className="pulse-glow" style={{ color: 'var(--accent-red)' }} />
+            Active Threat Intelligence Map
+          </h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Real-time visualization of simulated adversary C2 nodes targeting host assets.</p>
+          <div style={{ flexGrow: 1, background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', position: 'relative', overflow: 'hidden' }}>
+            {/* Draw a grid map background (stylized dot matrix) */}
+            <svg width="100%" height="100%" viewBox="0 0 400 160">
+              {/* World outline simulated dot matrix */}
+              <circle cx="50" cy="50" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="100" cy="70" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="150" cy="40" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="200" cy="80" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="250" cy="60" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="300" cy="90" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="80" cy="130" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="180" cy="120" r="1.5" fill="rgba(255,255,255,0.08)" />
+              <circle cx="350" cy="110" r="1.5" fill="rgba(255,255,255,0.08)" />
+              
+              {/* Active Connection Line between Attacker and Proxy */}
+              <path 
+                d="M 120 110 Q 200 40 280 80" 
+                fill="none" 
+                stroke="var(--accent-red)" 
+                strokeWidth="1.5" 
+                strokeDasharray="4,4" 
+                className={(isScanning || mitigatedCount < totalVulnerabilities) ? "connection-flow-dot" : ""}
+              />
+
+              {/* Attacker C2 Node (Red Alert) */}
+              <circle cx="120" cy="110" r="6" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 5px var(--accent-red))' }} />
+              <circle cx="120" cy="110" r="14" fill="transparent" stroke="var(--accent-red)" strokeWidth="1" className="pulse-glow" style={{ transformOrigin: '120px 110px' }} />
+              <text x="120" y="128" fill="var(--text-muted)" fontSize="8" textAnchor="middle">C2_NODE (EU)</text>
+
+              {/* Target Datacenter Node (Cyan Glow) */}
+              <circle cx="280" cy="80" r="6" fill="var(--accent-cyan)" style={{ filter: 'drop-shadow(0 0 5px var(--accent-cyan))' }} />
+              <text x="280" y="98" fill="var(--text-muted)" fontSize="8" textAnchor="middle">APP_HOST (US-WEST)</text>
+            </svg>
+            <div style={{ position: 'absolute', bottom: '8px', right: '12px', fontSize: '0.65rem', background: 'rgba(255, 56, 96, 0.1)', color: 'var(--accent-red)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(255, 56, 96, 0.2)' }}>
+              1 Active Exploit Route Detected
+            </div>
+          </div>
+        </div>
+
+        {/* WAF Security Guardrail Events Feed */}
+        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', height: '240px' }}>
+          <h3 className="sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Radio size={16} className="pulse-glow" style={{ color: 'var(--accent-emerald)' }} />
+            Policy Guardrail Event Logs
+          </h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Live feed tracking firewall intercepts and cryptographic audit checks.</p>
+          <div className="scanner-log-console" style={{ flexGrow: 1, background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', padding: '0.6rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem', overflowY: 'auto' }}>
+            <div style={{ color: 'var(--accent-emerald)', marginBottom: '0.4rem' }}>
+              [AUDIT] checksum validation successful: verified Flat-dependency-parser@1.0.4.
+            </div>
+            <div style={{ color: 'var(--accent-red)', marginBottom: '0.4rem' }}>
+              [WAF SHIELD] Blocked 1 SQLi attempt targeting /api/codebase/mitigate from IP 185.190.140.23.
+            </div>
+            <div style={{ color: 'var(--accent-cyan)', marginBottom: '0.4rem' }}>
+              [AUTH MONITOR] MFA key token signature verified. Operator session initialized.
+            </div>
+            <div style={{ color: 'var(--accent-amber)', marginBottom: '0.4rem' }}>
+              [LLM PROXY] Blocked prompt injection containing system context override words.
+            </div>
+            <div style={{ color: 'var(--accent-emerald)', marginBottom: '0.4rem' }}>
+              [K8S SHIELD] Containment policy quarantine-app-host completed.
+            </div>
+          </div>
+        </div>
 
       </div>
 
