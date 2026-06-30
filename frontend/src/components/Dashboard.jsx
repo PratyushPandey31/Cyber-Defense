@@ -80,6 +80,234 @@ export default function Dashboard({ metrics, files = [] }) {
     "Policies"
   ];
 
+  const downloadHtmlReport = () => {
+    const dateStr = new Date().toLocaleString();
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisShield AI Security Audit Report</title>
+  <style>
+    :root {
+      --bg-primary: #060913;
+      --bg-secondary: #0d1222;
+      --accent-cyan: #00f2fe;
+      --accent-emerald: #05f28b;
+      --accent-red: #ff3860;
+      --accent-amber: #fecb00;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 30px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.1);
+    }
+    .header {
+      border-bottom: 2px solid rgba(255,255,255,0.05);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .score-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .score-num {
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .metric-table th, .metric-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .metric-table th {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .status-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .status-pill.secured {
+      background: rgba(5, 242, 139, 0.1);
+      color: var(--accent-emerald);
+      border: 1px solid var(--accent-emerald);
+    }
+    .status-pill.vulnerable {
+      background: rgba(255, 56, 96, 0.1);
+      color: var(--accent-red);
+      border: 1px solid var(--accent-red);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: var(--accent-cyan);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 5px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="title">AegisShield AI Security Audit Report</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Generated on: ${dateStr}</div>
+      </div>
+      <div class="badge">Compliance Verified</div>
+    </div>
+
+    <div class="grid">
+      <div class="score-box">
+        <div class="score-num" style="color: ${securityScore < 50 ? 'var(--accent-red)' : securityScore < 80 ? 'var(--accent-amber)' : 'var(--accent-emerald)'}">${securityScore}</div>
+        <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-top: 10px;">Security Posture Index</div>
+      </div>
+      
+      <div>
+        <h3>Executive Summary</h3>
+        <p style="font-size: 14px; color: var(--text-muted); margin: 0;">
+          This document verifies the operational security capabilities of the Target Application hosting environment. 
+          AegisShield AI audited the codebase structure and active Zero-Trust policy definitions to calculate 
+          the overall posture index. Currently, ${mitigatedCount} of ${totalVulnerabilities} audited codebase modules are cryptographically secured and patched.
+        </p>
+      </div>
+    </div>
+
+    <div class="section-title">Audit Metrics & Response Benchmarks</div>
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Metric Parameters</th>
+          <th>Measured Response</th>
+          <th>Rating / Threshold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mean Time to Detect (MTTD)</td>
+          <td>${meanTimeToDetect} seconds</td>
+          <td style="color: var(--accent-emerald)">${meanTimeToDetect < 30 ? 'Excellent' : 'Nominal'}</td>
+        </tr>
+        <tr>
+          <td>Mean Time to Mitigate (MTTM)</td>
+          <td>${meanTimeToMitigate} seconds</td>
+          <td style="color: var(--accent-emerald)">${meanTimeToMitigate < 60 ? 'Immediate Remediator' : 'Nominal'}</td>
+        </tr>
+        <tr>
+          <td>Active Gateway Guardrail Policies</td>
+          <td>${activePolicies} policies enabled</td>
+          <td>${activePolicies === 4 ? 'Full Gatekeepers' : 'Partial Gates'}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Audited Codebase Security Checkmarks</div>
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Source Module</th>
+          <th>Vulnerability Reference</th>
+          <th>Risk Category</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${files.map(f => `
+          <tr>
+            <td><strong>${f.name}</strong></td>
+            <td>${f.cve}</td>
+            <td>${f.category}</td>
+            <td>
+              <span class="status-pill ${f.isMitigated ? 'secured' : 'vulnerable'}">
+                ${f.isMitigated ? 'Mitigated / Signed' : 'Vulnerable'}
+              </span>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      This is a cryptographically simulated validation report. Powered by AegisShield AI Security Suite.
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AegisShield_Audit_Report_' + new Date().toISOString().split('T')[0] + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
@@ -370,6 +598,22 @@ export default function Dashboard({ metrics, files = [] }) {
           of modern attacks. Enable defensive protocols in the **Threat Emulator** tab, or apply patches inside the **Vulnerability Workspace** 
           to observe mitigation effectiveness in real time.
         </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.25rem', borderTop: '1px solid var(--border-muted)', paddingTop: '1rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            Report integrity certified by AegisShield AI Security Engine.
+          </span>
+          <button 
+            className="btn-primary" 
+            style={{ 
+              background: 'linear-gradient(135deg, var(--accent-emerald), #05ba6c)',
+              boxShadow: 'var(--shadow-glow-emerald)'
+            }}
+            onClick={downloadHtmlReport}
+          >
+            <ShieldCheck size={16} />
+            Download Security Audit Report
+          </button>
+        </div>
       </div>
 
     </div>
