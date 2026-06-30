@@ -21,7 +21,7 @@ export default function Login({ onLoginSuccess }) {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (username.trim() && password.trim()) {
-      onLoginSuccess();
+      onLoginSuccess(username);
     } else {
       alert("Please enter both username and password.");
     }
@@ -54,7 +54,7 @@ export default function Login({ onLoginSuccess }) {
       } else {
         clearInterval(interval);
         setTimeout(() => {
-          onLoginSuccess();
+          onLoginSuccess('SecKey-Operator-01');
         }, 500);
       }
     }, 400);

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Shield, AlertTriangle, Clock, ShieldCheck, TrendingUp, BarChart3, Radio } from 'lucide-react';
 
-export default function Dashboard({ metrics, files = [] }) {
+export default function Dashboard({ metrics, files = [], currentUser = '' }) {
   const { securityScore, mitigatedCount, totalVulnerabilities, meanTimeToDetect, meanTimeToMitigate, activePolicies } = metrics;
 
   // Calculate SVG stroke parameters for circular score dial
@@ -308,8 +308,41 @@ export default function Dashboard({ metrics, files = [] }) {
     URL.revokeObjectURL(url);
   };
 
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    if (hour < 22) return 'Good evening';
+    return 'Good night';
+  };
+  const greeting = getTimeGreeting();
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      
+      {/* Dynamic Greetings Panel */}
+      <div className="glass-panel" style={{
+        background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.04), rgba(13, 18, 34, 0.75))',
+        border: '1px solid rgba(0, 242, 254, 0.15)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '1.25rem 1.75rem',
+        borderRadius: '16px',
+        marginBottom: '0.5rem'
+      }}>
+        <div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>
+            {greeting}, <span style={{ color: 'var(--accent-cyan)' }}>{currentUser || 'Operator'}</span>!
+          </h2>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+            AegisShield Operations Console active. Threat monitoring nodes operational.
+          </p>
+        </div>
+        <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.2)', color: 'var(--accent-cyan)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+          NODE_IP: 192.168.12.84
+        </span>
+      </div>
       
       {/* Metrics & Dial Row */}
       <div className="dashboard-grid">
