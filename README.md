@@ -4,6 +4,11 @@
 [![Compliance: Executive Order 14028](https://img.shields.io/badge/Compliance-EO__14028-emerald.svg)](#)
 [![OWASP: Top 10 Aligned](https://img.shields.io/badge/OWASP-Top__10-cyan.svg)](#)
 
+<p align="center">
+  <img src="./frontend/src/assets/dashboard_mockup.png" width="48%" alt="AegisShield Operations Dashboard" />
+  <img src="./frontend/src/assets/login_portal_mockup.png" width="48%" alt="AegisShield Biometric Login Portal" />
+</p>
+
 AegisShield AI is an industry-grade, full-stack cyber security demonstration platform designed to showcase advanced threat emulation, zero-trust active mitigation, and software supply chain verification. Built with a responsive, glassmorphic dark-mode dashboard, AegisShield AI empowers security evaluators to witness how sophisticated contemporary exploits can be audited, blocked, and remediated in real time.
 
 ---
