@@ -159,6 +159,7 @@ export default function Login({ onLoginSuccess }) {
               style={{ border: 'none', cursor: isScanning ? 'default' : 'pointer' }}
             >
               {isScanning && <div className="scanner-radar-line"></div>}
+              {isScanning && <div className="scanner-laser-line"></div>}
               <Fingerprint size={48} style={{ 
                 filter: isScanning ? 'drop-shadow(0 0 10px rgba(0, 242, 254, 0.8))' : 'none',
                 transition: 'all 0.3s'

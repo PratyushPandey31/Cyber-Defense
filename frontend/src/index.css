@@ -47,8 +47,11 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   background-image: 
+    linear-gradient(rgba(0, 242, 254, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 242, 254, 0.01) 1px, transparent 1px),
     radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.03) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(155, 81, 224, 0.03) 0%, transparent 40%);
+  background-size: 30px 30px, 30px 30px, auto, auto;
   background-attachment: fixed;
 }
 
@@ -1113,3 +1116,23 @@ input:checked + .slider:before {
   color: var(--accent-cyan);
 }
 
+.scanner-laser-line {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+  animation: laser-bounce 2s infinite ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.biometric-scanner.scanning .scanner-laser-line {
+  opacity: 1;
+}
+
+@keyframes laser-bounce {
+  0%, 100% { top: 15%; }
+  50% { top: 85%; }
+}
