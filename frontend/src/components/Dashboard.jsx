@@ -2,10 +2,9 @@
 import React from 'react';
 import { Shield, AlertTriangle, Clock, ShieldCheck, TrendingUp, BarChart3, Radio } from 'lucide-react';
 
-export default function Dashboard({ metrics, files = [], currentUser = '' }) {
+export default function Dashboard({ metrics, files = [], currentUser = '', hasScanned, setHasScanned }) {
   const { securityScore, mitigatedCount, totalVulnerabilities, meanTimeToDetect, meanTimeToMitigate, activePolicies } = metrics;
 
-  const [hasScanned, setHasScanned] = React.useState(false);
   const [isScanning, setIsScanning] = React.useState(false);
   const [scanProgress, setScanProgress] = React.useState(0);
   const [scanLogs, setScanLogs] = React.useState([]);

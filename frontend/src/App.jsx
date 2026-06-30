@@ -10,6 +10,7 @@ import Login from './components/Login';
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
+  const [hasScanned, setHasScanned] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [files, setFiles] = useState([]);
   const [policies, setPolicies] = useState({
@@ -193,7 +194,15 @@ export default function App() {
 
       {/* Main Views Container */}
       <main style={{ flexGrow: 1, marginTop: '1.5rem', paddingBottom: '3rem' }}>
-        {activeTab === 'dashboard' && <Dashboard metrics={metrics} files={files} currentUser={currentUser} />}
+        {activeTab === 'dashboard' && (
+          <Dashboard 
+            metrics={metrics} 
+            files={files} 
+            currentUser={currentUser} 
+            hasScanned={hasScanned} 
+            setHasScanned={setHasScanned} 
+          />
+        )}
         {activeTab === 'emulator' && (
           <Emulator 
             policies={policies} 
