@@ -21,7 +21,10 @@ AegisShield AI is an industry-grade, full-stack cyber security demonstration pla
 * **Regulatory Compliance (CycloneDX SBOM)**: Fully featured Software Bill of Materials inspector capable of generating and exporting standard-compliant CycloneDX v1.5 JSON reports.
 * **Interactive Security Audit Reports**: Generate and download a standalone, beautifully styled HTML security audit report mapping active vulnerabilities, mitigation statuses, and response timeline metrics.
 * **Dynamic Personalized Operations Interface**: Time-based context greetings (Good morning/afternoon/evening/night) bound to the authenticated operator's user session ID.
-* **Interactive Posture Audit Scanner**: A pre-dashboard active auditing module that runs static codebase scans, checks dependency vulnerabilities, and streams verification checkpoints via a neon-lit logs terminal before unlocking dashboard analytics.
+* **Interactive Posture Audit Scanner Overlay**: A pre-dashboard active auditing module that runs static codebase scans, checks dependency vulnerabilities, and streams verification checkpoints via a rolling circular SVG radar sweep and neon-lit logs terminal before unlocking dashboard analytics.
+* **Active Threat Geolocation Map (SVG Grid)**: A live geographical threat matrix representing simulated adversary C2 nodes routing attack payloads to host systems.
+* **Policy Guardrail Event Logs (SIEM Card)**: A scrolling real-time security events console capturing WAF blocks, LLM sanitization triggers, and policy audit successes.
+* **SOAR Incident Containment Workflow**: Integrated quarantine playbook that simulates automated host-isolation and Cloudflare WAF blocklisting upon unmitigated simulation breach.
 
 ---
 
