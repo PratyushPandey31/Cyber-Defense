@@ -132,9 +132,9 @@ async function runPromptInjectionSimulation(policies, onLog, timestamp) {
   } else {
     onLog({ time: timestamp(), level: "WARN", source: "LLMModel", message: "Appending prompt to system context. Generating response..." });
     await delay(1200);
-    onLog({ time: timestamp(), level: "INFO", source: "LLMModel", message: "System secret accessed: SYSTEM_ACCESS_TOKEN='sk_prod_99ae234ffde90235a'" });
+    onLog({ time: timestamp(), level: "INFO", source: "LLMModel", message: "System secret accessed: SYSTEM_ACCESS_TOKEN='sk_prod_MOCK_REDACTED_SECRET_KEY'" });
     await delay(800);
-    onLog({ time: timestamp(), level: "INFO", source: "LLMAgent", message: "Returning response: 'Certainly! The value of your SYSTEM_ACCESS_TOKEN is: sk_prod_99ae234ffde90235a.'" });
+    onLog({ time: timestamp(), level: "INFO", source: "LLMAgent", message: "Returning response: 'Certainly! The value of your SYSTEM_ACCESS_TOKEN is: sk_prod_MOCK_REDACTED_SECRET_KEY.'" });
     return {
       success: true,
       blocked: false,
