@@ -7,6 +7,40 @@ import CodeWorkspace from './components/CodeWorkspace';
 import SbomVisualizer from './components/SbomVisualizer';
 import Login from './components/Login';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', background: 'rgba(255, 56, 96, 0.1)', border: '1px solid rgba(255, 56, 96, 0.2)', borderRadius: '12px', color: 'var(--accent-red)', margin: '2rem 0' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>⚠️ Security Panel Render Exception</h2>
+          <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', fontFamily: 'var(--font-mono)' }}>{this.state.error?.toString()}</p>
+          <button 
+            style={{ marginTop: '1rem', background: 'var(--accent-cyan)', border: 'none', color: '#000', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
+            onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
+          >
+            Reload AegisShield Console
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children; 
+  }
+}
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
@@ -235,17 +269,19 @@ export default function App() {
       {/* Main Views Container */}
       <main style={{ flexGrow: 1, marginTop: '1.5rem', paddingBottom: '3rem' }}>
         {activeTab === 'dashboard' && (
-          <Dashboard 
-            metrics={metrics} 
-            files={files} 
-            currentUser={currentUser} 
-            hasScanned={hasScanned} 
-            isScanning={isScanning}
-            scanProgress={scanProgress}
-            scanLogs={scanLogs}
-            onStartScan={handleStartAuditScan}
-            onResetScan={handleResetAuditScan}
-          />
+          <ErrorBoundary>
+            <Dashboard 
+              metrics={metrics} 
+              files={files} 
+              currentUser={currentUser} 
+              hasScanned={hasScanned} 
+              isScanning={isScanning}
+              scanProgress={scanProgress}
+              scanLogs={scanLogs}
+              onStartScan={handleStartAuditScan}
+              onResetScan={handleResetAuditScan}
+            />
+          </ErrorBoundary>
         )}
         {activeTab === 'emulator' && (
           <Emulator 
