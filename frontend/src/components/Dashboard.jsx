@@ -429,7 +429,7 @@ export default function Dashboard({
           {/* Scan Logs Console */}
           <div className="scanner-log-console" style={{ height: '110px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', padding: '0.6rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>
             {(scanLogs || []).map((log, idx) => (
-              <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.25rem' }}>
+              <div key={idx} style={{ color: (log && typeof log === 'string' && log.includes('Found')) ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.25rem' }}>
                 &gt; {log}
               </div>
             ))}
