@@ -45,7 +45,7 @@ export default function Dashboard({
 
   // Map files and policies to 5 risk profile axes
   const isMitigated = (path) => {
-    const file = files.find(f => f.path === path);
+    const file = (files || []).find(f => f.path === path);
     return file ? file.isMitigated : false;
   };
 
@@ -294,7 +294,7 @@ export default function Dashboard({
         </tr>
       </thead>
       <tbody>
-        ${files.map(f => `
+        ${(files || []).map(f => `
           <tr>
             <td><strong>${f.name}</strong></td>
             <td>${f.cve}</td>
@@ -428,7 +428,7 @@ export default function Dashboard({
 
           {/* Scan Logs Console */}
           <div className="scanner-log-console" style={{ height: '110px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', padding: '0.6rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>
-            {scanLogs.map((log, idx) => (
+            {(scanLogs || []).map((log, idx) => (
               <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.25rem' }}>
                 &gt; {log}
               </div>
