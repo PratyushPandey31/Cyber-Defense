@@ -300,6 +300,7 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   text-align: left;
+  color: var(--text-main);
 }
 
 .scenario-card:hover {
@@ -323,6 +324,7 @@ body {
 .scenario-name {
   font-weight: 700;
   font-size: 0.95rem;
+  color: #ffffff;
 }
 
 .severity-badge {
