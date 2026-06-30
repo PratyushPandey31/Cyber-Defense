@@ -73,6 +73,7 @@ export default function App() {
 
   useEffect(() => {
     fetchInitialState();
+    handleStartAuditScan();
   }, []);
 
   const fetchInitialState = async () => {

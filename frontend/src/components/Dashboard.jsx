@@ -587,27 +587,7 @@ export default function Dashboard({
             <Radio size={16} className={isScanning ? "spin" : ""} style={{ color: 'var(--accent-cyan)' }} />
             SCA & Security Posture Audit Scanner
           </h3>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Run real-time static code analysis and checksum verification checks on the codebase modules.
-          </p>
 
-          {!isScanning && !hasScanned && (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', gap: '1rem', padding: '1rem 0' }}>
-              <button 
-                className="btn-primary"
-                style={{ 
-                  background: 'linear-gradient(135deg, var(--accent-cyan), #00b8ff)',
-                  boxShadow: 'var(--shadow-glow-cyan)',
-                  padding: '0.6rem 1.2rem',
-                  fontSize: '0.85rem'
-                }}
-                onClick={onStartScan}
-              >
-                <Radio size={14} style={{ marginRight: '0.25rem' }} />
-                Initiate Posture Audit
-              </button>
-            </div>
-          )}
 
           {isScanning && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0' }}>
