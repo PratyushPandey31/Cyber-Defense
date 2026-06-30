@@ -51,6 +51,9 @@ export default function Emulator({ policies, onTogglePolicy, onUpdateMetrics }) 
   const [isSimulating, setIsSimulating] = useState(false);
   const [animationState, setAnimationState] = useState('idle'); // idle, running, breached, blocked
   const [simulationResult, setSimulationResult] = useState(null);
+  const [soarTriggered, setSoarTriggered] = useState(false);
+  const [soarLogs, setSoarLogs] = useState([]);
+  const [isSoarRunning, setIsSoarRunning] = useState(false);
   
   const terminalEndRef = useRef(null);
   const eventSourceRef = useRef(null);
@@ -75,6 +78,9 @@ export default function Emulator({ policies, onTogglePolicy, onUpdateMetrics }) 
     if (isSimulating) return;
 
     setLogs([]);
+    setSoarTriggered(false);
+    setSoarLogs([]);
+    setIsSoarRunning(false);
     setIsSimulating(true);
     setSimulationResult(null);
     setAnimationState('running');
@@ -118,6 +124,157 @@ export default function Emulator({ policies, onTogglePolicy, onUpdateMetrics }) 
       setAnimationState('idle');
       source.close();
     };
+  };
+
+  const triggerSoarContainment = () => {
+    if (isSoarRunning || soarTriggered) return;
+    setIsSoarRunning(true);
+    setSoarLogs([]);
+
+    const steps = [
+      "SOAR Handshake with Kubernetes cluster api gateway...",
+      "Isolating container node 'app-host-prod-01' (IP 10.244.0.12)...",
+      "Updating Cloudflare WAF blocklists: Added IP 185.190.140.23 (Attacker C2)...",
+      "Terminating active sessions on user authentication keys...",
+      "Threat contained. Container isolated. WAF block rules active."
+    ];
+
+    let current = 0;
+    const interval = setInterval(() => {
+      if (current < steps.length) {
+        setSoarLogs(prev => [...prev, {
+          time: new Date().toLocaleTimeString(),
+          text: steps[current]
+        }]);
+        current++;
+      } else {
+        clearInterval(interval);
+        setIsSoarRunning(false);
+        setSoarTriggered(true);
+        setAnimationState('blocked');
+      }
+    }, 450);
+  };
+
+  const downloadIncidentReport = () => {
+    const dateStr = new Date().toLocaleString();
+    const isMitigated = simulationResult.blocked || soarTriggered;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Incident Forensics Audit Report - ${activeScenario.name}</title>
+  <style>
+    :root {
+      --bg-primary: #060913;
+      --bg-secondary: #0d1222;
+      --accent-cyan: #00f2fe;
+      --accent-emerald: #05f28b;
+      --accent-red: #ff3860;
+      --accent-amber: #fecb00;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 30px;
+      line-height: 1.6;
+    }
+    .report-box {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(255, 56, 96, 0.2);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 35px rgba(255, 56, 96, 0.08);
+    }
+    .header {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .timeline {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-top: 15px;
+    }
+    .log-line {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+    .log-time { color: var(--text-muted); }
+    .log-source { color: var(--accent-cyan); }
+    .status-badge {
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .status-badge.remediated {
+      background: rgba(5, 242, 139, 0.1);
+      color: var(--accent-emerald);
+      border: 1px solid var(--accent-emerald);
+    }
+    .status-badge.active {
+      background: rgba(255, 56, 96, 0.1);
+      color: var(--accent-red);
+      border: 1px solid var(--accent-red);
+    }
+  </style>
+</head>
+<body>
+  <div class="report-box" style="border-color: ${isMitigated ? 'rgba(5, 242, 139, 0.2)' : 'rgba(255, 56, 96, 0.2)'}">
+    <div class="header">
+      <div>
+        <h1 style="margin: 0; font-size: 22px; color: ${isMitigated ? 'var(--accent-emerald)' : 'var(--accent-red)'}">
+          ${isMitigated ? 'SECURED: Blocked Attack Forensics' : 'CRITICAL: Breach Containment Forensics'}
+        </h1>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Incident Reference: #${Math.floor(Math.random()*900000 + 100000)}</div>
+      </div>
+      <span class="status-badge ${isMitigated ? 'remediated' : 'active'}">
+        ${isMitigated ? 'Contained / Mitigated' : 'Breach Active'}
+      </span>
+    </div>
+
+    <h3>Incident Parameters</h3>
+    <p><strong>Vector Target:</strong> ${activeScenario.name} (${activeScenario.cve})</p>
+    <p><strong>Exploit Severity:</strong> ${activeScenario.severityText}</p>
+    <p><strong>Incident Datetime:</strong> ${dateStr}</p>
+    
+    <h3>Exploit Execution Timeline Logs</h3>
+    <div class="timeline">
+      ${logs.map(l => '<div class="log-line"><span class="log-time">[' + l.time + ']</span> <span style="color: ' + (l.level === 'MALICIOUS' ? 'var(--accent-red)' : 'var(--accent-cyan)') + '">[' + l.level + ']</span> <span class="log-source">[' + l.source + ']</span> <span>' + l.message + '</span></div>').join('')}
+    </div>
+
+    ${soarLogs.length > 0 ? '<h3>SOAR Automated Containment Playbook Actions</h3><div class="timeline" style="border: 1px solid rgba(5, 242, 139, 0.2);">' + soarLogs.map(s => '<div class="log-line"><span class="log-time">[' + s.time + ']</span> <span style="color: var(--accent-emerald)">[CONTAINMENT]</span> <span>' + s.text + '</span></div>').join('') + '</div>' : ''}
+
+    <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; font-size: 12px; color: var(--text-muted);">
+      This report is cryptographically compiled by the AegisShield Incident Response (SOAR) engine.
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AegisShield_Incident_Report_' + activeScenario.id + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const getFlowAnimationClass = () => {
@@ -276,24 +433,92 @@ export default function Emulator({ policies, onTogglePolicy, onUpdateMetrics }) 
 
         {/* Post-Simulation Results */}
         {simulationResult && (
-          <div className={`alert-popup ${simulationResult.blocked ? 'success' : 'danger'}`}>
-            {simulationResult.blocked ? (
-              <ShieldCheck size={28} style={{ flexShrink: 0 }} />
-            ) : (
-              <ShieldAlert size={28} style={{ flexShrink: 0 }} />
-            )}
-            <div>
-              <h4 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.15rem' }}>
-                {simulationResult.blocked ? 'Attack Mitigated Successfully!' : 'System Breach Confirmed!'}
-              </h4>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.4' }}>
-                <strong>Vulnerability:</strong> {simulationResult.attacked} | <strong>Mitigation:</strong> {simulationResult.mitigatedBy}
-                <br />
-                <span style={{ color: '#fff', display: 'inline-block', marginTop: '0.25rem' }}>
-                  {simulationResult.technicalDetail}
-                </span>
-              </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+            <div className={`alert-popup ${simulationResult.blocked ? 'success' : 'danger'}`} style={{ width: '100%' }}>
+              {simulationResult.blocked ? (
+                <ShieldCheck size={28} style={{ flexShrink: 0 }} />
+              ) : (
+                <ShieldAlert size={28} style={{ flexShrink: 0 }} />
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                <div>
+                  <h4 style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.15rem' }}>
+                    {simulationResult.blocked ? 'Attack Mitigated Successfully!' : 'System Breach Confirmed!'}
+                  </h4>
+                  <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.4' }}>
+                    <strong>Vulnerability:</strong> {simulationResult.attacked} | <strong>Mitigation:</strong> {simulationResult.mitigatedBy}
+                    <br />
+                    <span style={{ color: '#fff', display: 'inline-block', marginTop: '0.25rem' }}>
+                      {simulationResult.technicalDetail}
+                    </span>
+                  </p>
+                </div>
+                <button 
+                  className="btn-primary"
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    boxShadow: 'none',
+                    fontSize: '0.8rem',
+                    padding: '0.5rem 1rem'
+                  }}
+                  onClick={downloadIncidentReport}
+                >
+                  Download incident Report
+                </button>
+              </div>
             </div>
+
+            {/* SOAR Active Playbooks Panel */}
+            {!simulationResult.blocked && (
+              <div className="glass-panel" style={{
+                background: 'linear-gradient(135deg, rgba(255, 56, 96, 0.05), rgba(13, 18, 34, 0.8))',
+                borderColor: soarTriggered ? 'rgba(5, 242, 139, 0.25)' : 'rgba(255, 56, 96, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                padding: '1.25rem',
+                width: '100%'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ fontWeight: 700, fontSize: '0.95rem', color: soarTriggered ? 'var(--accent-emerald)' : 'var(--accent-red)' }}>
+                      {soarTriggered ? '✓ SOAR CONTAINMENT ACTIVE' : '⚠ SOAR INCIDENT RESPONSE PORTAL'}
+                    </h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      {soarTriggered ? 'System isolated and threat blocked.' : 'Unmitigated exploit payload active. Containment recommended.'}
+                    </p>
+                  </div>
+                  
+                  {!soarTriggered && (
+                    <button
+                      className="btn-primary"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--accent-emerald), #05ba6c)',
+                        boxShadow: 'var(--shadow-glow-emerald)',
+                        fontSize: '0.85rem'
+                      }}
+                      disabled={isSoarRunning}
+                      onClick={triggerSoarContainment}
+                    >
+                      {isSoarRunning ? <RefreshCw className="spin" size={14} /> : <Shield size={14} />}
+                      Execute Quarantine Playbook
+                    </button>
+                  )}
+                </div>
+
+                {/* SOAR logs console */}
+                {(isSoarRunning || soarLogs.length > 0) && (
+                  <div className="scanner-log-console" style={{ height: '90px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '8px', padding: '0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>
+                    {soarLogs.map((s, idx) => (
+                      <div key={idx} style={{ color: 'var(--accent-emerald)', marginBottom: '0.15rem' }}>
+                        [{s.time}] {s.text}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
