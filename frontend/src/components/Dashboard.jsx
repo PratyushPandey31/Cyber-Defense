@@ -611,13 +611,42 @@ export default function Dashboard({
 
           {isScanning && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                <span style={{ color: 'var(--accent-cyan)' }}>Auditing modules...</span>
-                <span>{scanProgress}%</span>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {/* Rolling SVG Radar Sweep */}
+                <div style={{ width: '60px', height: '60px', flexShrink: 0, position: 'relative' }}>
+                  <svg width="60" height="60" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="38" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
+                    <circle cx="40" cy="40" r="26" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
+                    <circle cx="40" cy="40" r="14" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
+                    <line x1="40" y1="2" x2="40" y2="78" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
+                    <line x1="2" y1="40" x2="78" y2="40" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
+                    <line 
+                      x1="40" y1="40" x2="40" y2="2" 
+                      stroke="var(--accent-cyan)" 
+                      strokeWidth="1.5" 
+                      style={{
+                        transformOrigin: '40px 40px',
+                        animation: 'spin-clockwise 2s linear infinite'
+                      }}
+                    />
+                    {scanProgress > 30 && <circle cx="28" cy="22" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
+                    {scanProgress > 60 && <circle cx="55" cy="50" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
+                  </svg>
+                </div>
+
+                {/* Progress bar info */}
+                <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                    <span style={{ color: 'var(--accent-cyan)' }}>Auditing codebase modules...</span>
+                    <span>{scanProgress}%</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', transition: 'width 0.3s ease-out' }}></div>
+                  </div>
+                </div>
               </div>
-              <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', transition: 'width 0.3s ease-out' }}></div>
-              </div>
+
+              {/* Scrolling Logs Console */}
               <div className="scanner-log-console" style={{ height: '90px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '6px', padding: '0.4rem', fontFamily: 'var(--font-mono)', fontSize: '0.6rem' }}>
                 {scanLogs.map((log, idx) => (
                   <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.15rem' }}>
