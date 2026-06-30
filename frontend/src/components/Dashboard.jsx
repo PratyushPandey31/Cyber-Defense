@@ -5,6 +5,42 @@ import { Shield, AlertTriangle, Clock, ShieldCheck, TrendingUp, BarChart3, Radio
 export default function Dashboard({ metrics, files = [], currentUser = '' }) {
   const { securityScore, mitigatedCount, totalVulnerabilities, meanTimeToDetect, meanTimeToMitigate, activePolicies } = metrics;
 
+  const [hasScanned, setHasScanned] = React.useState(false);
+  const [isScanning, setIsScanning] = React.useState(false);
+  const [scanProgress, setScanProgress] = React.useState(0);
+  const [scanLogs, setScanLogs] = React.useState([]);
+
+  const startAuditScan = () => {
+    setIsScanning(true);
+    setScanProgress(0);
+    setScanLogs([]);
+    
+    const logs = [
+      "Initializing AegisShield Security Audit Engine...",
+      "Checking software supply chain dependencies... Found flat-dependency-parser@1.0.4",
+      "Evaluating dependency vulnerability checksums... CVE-2026-38291 [CRITICAL] active.",
+      "Analyzing REST API Gateway paths... Found horizontal privilege escalation BOLA vulnerability.",
+      "Auditing LLM support bot instructions mapping... Input sanitization missing.",
+      "Auditing session identity policies... HTTPOnly flag missing in cookie setup.",
+      "Finalizing scoring calculations... Posture index computed successfully."
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      if (currentStep < logs.length) {
+        setScanLogs(prev => [...prev, logs[currentStep]]);
+        setScanProgress(Math.min(Math.floor((currentStep + 1) * 14.3), 100));
+        currentStep++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          setHasScanned(true);
+          setIsScanning(false);
+        }, 500);
+      }
+    }, 350);
+  };
+
   // Calculate SVG stroke parameters for circular score dial
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
@@ -317,6 +353,94 @@ export default function Dashboard({ metrics, files = [], currentUser = '' }) {
   };
   const greeting = getTimeGreeting();
 
+  if (!hasScanned && !isScanning) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '65vh' }}>
+        <div className="glass-panel" style={{
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center',
+          padding: '3rem 2rem',
+          background: 'rgba(13, 18, 34, 0.85)',
+          boxShadow: '0 0 40px rgba(0, 242, 254, 0.15)',
+          border: '1px solid rgba(0, 242, 254, 0.25)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.5rem',
+          borderRadius: '20px'
+        }}>
+          <Shield size={56} style={{ color: 'var(--accent-cyan)', filter: 'drop-shadow(0 0 10px rgba(0, 242, 254, 0.5))' }} />
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>Security Posture Audit Scanner</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              Audits third-party dependency trees, routing authorization models, LLM system context constraints, and cookie settings.
+            </p>
+          </div>
+          <button
+            className="btn-primary"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-cyan), #00b8ff)',
+              boxShadow: 'var(--shadow-glow-cyan)',
+              width: '100%',
+              justifyContent: 'center',
+              padding: '0.85rem 1.5rem',
+              fontSize: '1rem'
+            }}
+            onClick={startAuditScan}
+          >
+            <Radio size={18} style={{ marginRight: '0.25rem' }} />
+            Run Security Audit Scan
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isScanning) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '65vh' }}>
+        <div className="glass-panel" style={{
+          maxWidth: '500px',
+          width: '100%',
+          padding: '2.5rem 2rem',
+          background: 'rgba(13, 18, 34, 0.85)',
+          border: '1px solid rgba(0, 242, 254, 0.25)',
+          boxShadow: '0 0 35px rgba(0, 242, 254, 0.15)',
+          borderRadius: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="biometric-scanner scanning" style={{ width: '40px', height: '40px', border: 'none', background: 'transparent', boxShadow: 'none', padding: 0 }}>
+              <div className="scanner-radar-line" style={{ width: '100%', height: '100%' }}></div>
+              <Shield size={20} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Scanning System Posture...</h3>
+              <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>Progress: {scanProgress}%</span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border-muted)' }}>
+            <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', transition: 'width 0.3s ease-out', borderRadius: '4px' }}></div>
+          </div>
+
+          {/* Scan Logs Console */}
+          <div className="scanner-log-console" style={{ height: '110px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', padding: '0.6rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>
+            {scanLogs.map((log, idx) => (
+              <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.25rem' }}>
+                &gt; {log}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
@@ -339,9 +463,30 @@ export default function Dashboard({ metrics, files = [], currentUser = '' }) {
             AegisShield Operations Console active. Threat monitoring nodes operational.
           </p>
         </div>
-        <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.2)', color: 'var(--accent-cyan)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-          NODE_IP: 192.168.12.84
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={() => setHasScanned(false)}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(0, 242, 254, 0.25)',
+              color: 'var(--accent-cyan)',
+              padding: '0.4rem 0.8rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
+          >
+            <Radio size={14} />
+            Re-Audit Scan
+          </button>
+          <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.2)', color: 'var(--accent-cyan)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+            NODE_IP: 192.168.12.84
+          </span>
+        </div>
       </div>
       
       {/* Metrics & Dial Row */}
