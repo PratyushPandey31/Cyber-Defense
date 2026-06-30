@@ -19,6 +19,8 @@ AegisShield AI is an industry-grade, full-stack cyber security demonstration pla
 * **Morphing SVG Radar Risk Profile**: A real-time mathematical radar visualization representing the system's active OWASP risk boundaries. As code patches are deployed, the polygon dynamically expands to full coverage.
 * **Server-Sent Events (SSE) Exploit Streamer**: High-performance log streaming pipeline simulating Trojan postinstall execution, data exfiltration, and WAF intercepts in a scrollable, color-coded threat console.
 * **Regulatory Compliance (CycloneDX SBOM)**: Fully featured Software Bill of Materials inspector capable of generating and exporting standard-compliant CycloneDX v1.5 JSON reports.
+* **Interactive Security Audit Reports**: Generate and download a standalone, beautifully styled HTML security audit report mapping active vulnerabilities, mitigation statuses, and response timeline metrics.
+* **Dynamic Personalized Operations Interface**: Time-based context greetings (Good morning/afternoon/evening/night) bound to the authenticated operator's user session ID.
 
 ---
 
