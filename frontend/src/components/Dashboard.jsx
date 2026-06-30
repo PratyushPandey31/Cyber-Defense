@@ -13,7 +13,16 @@ export default function Dashboard({
   onStartScan, 
   onResetScan 
 }) {
-  const { securityScore, mitigatedCount, totalVulnerabilities, meanTimeToDetect, meanTimeToMitigate, activePolicies } = metrics;
+  const { 
+    securityScore = 20, 
+    mitigatedCount = 0, 
+    totalVulnerabilities = 4, 
+    meanTimeToDetect = 120, 
+    meanTimeToMitigate = 240, 
+    activePolicies = 0 
+  } = metrics || {};
+
+  console.log("Dashboard rendering state:", { hasScanned, isScanning, scanProgress, scanLogsCount: scanLogs.length, securityScore });
 
   // Calculate SVG stroke parameters for circular score dial
   const radius = 80;
