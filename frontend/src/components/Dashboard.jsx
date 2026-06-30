@@ -336,6 +336,109 @@ export default function Dashboard({
   };
   const greeting = getTimeGreeting();
 
+  if (!hasScanned && !isScanning) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '65vh' }}>
+        <div className="glass-panel" style={{
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center',
+          padding: '3rem 2rem',
+          background: 'rgba(13, 18, 34, 0.85)',
+          boxShadow: '0 0 40px rgba(0, 242, 254, 0.15)',
+          border: '1px solid rgba(0, 242, 254, 0.25)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.5rem',
+          borderRadius: '20px'
+        }}>
+          <Shield size={56} style={{ color: 'var(--accent-cyan)', filter: 'drop-shadow(0 0 10px rgba(0, 242, 254, 0.5))' }} />
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>Security Posture Audit Scanner</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: '1.5' }}>
+              Audits third-party dependency trees, routing authorization models, LLM system context constraints, and cookie settings.
+            </p>
+          </div>
+          <button
+            className="btn-primary"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-cyan), #00b8ff)',
+              boxShadow: 'var(--shadow-glow-cyan)',
+              width: '100%',
+              justifyContent: 'center',
+              padding: '0.85rem 1.5rem',
+              fontSize: '1rem'
+            }}
+            onClick={onStartScan}
+          >
+            <Radio size={18} style={{ marginRight: '0.25rem' }} />
+            Run Security Audit Scan
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isScanning) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '65vh' }}>
+        <div className="glass-panel" style={{
+          maxWidth: '500px',
+          width: '100%',
+          padding: '2.5rem 2rem',
+          background: 'rgba(13, 18, 34, 0.85)',
+          border: '1px solid rgba(0, 242, 254, 0.25)',
+          boxShadow: '0 0 35px rgba(0, 242, 254, 0.15)',
+          borderRadius: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '50px', height: '50px', flexShrink: 0, position: 'relative' }}>
+              <svg width="50" height="50" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="38" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
+                <circle cx="40" cy="40" r="26" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
+                <line x1="40" y1="2" x2="40" y2="78" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
+                <line x1="2" y1="40" x2="78" y2="40" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
+                <line 
+                  x1="40" y1="40" x2="40" y2="2" 
+                  stroke="var(--accent-cyan)" 
+                  strokeWidth="2" 
+                  style={{
+                    transformOrigin: '40px 40px',
+                    animation: 'spin-clockwise 2s linear infinite'
+                  }}
+                />
+                {scanProgress > 30 && <circle cx="28" cy="22" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
+                {scanProgress > 60 && <circle cx="55" cy="50" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
+              </svg>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Scanning System Posture...</h3>
+              <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>Progress: {scanProgress}%</span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border-muted)' }}>
+            <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', transition: 'width 0.3s ease-out', borderRadius: '4px' }}></div>
+          </div>
+
+          {/* Scan Logs Console */}
+          <div className="scanner-log-console" style={{ height: '110px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '10px', padding: '0.6rem', fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>
+            {scanLogs.map((log, idx) => (
+              <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.25rem' }}>
+                &gt; {log}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
@@ -358,9 +461,30 @@ export default function Dashboard({
             AegisShield Operations Console active. Threat monitoring nodes operational.
           </p>
         </div>
-        <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.2)', color: 'var(--accent-cyan)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-          NODE_IP: 192.168.12.84
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={onResetScan}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(0, 242, 254, 0.25)',
+              color: 'var(--accent-cyan)',
+              padding: '0.4rem 0.8rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
+          >
+            <Radio size={14} />
+            Re-Audit Scan
+          </button>
+          <span style={{ fontSize: '0.75rem', background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.2)', color: 'var(--accent-cyan)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+            NODE_IP: 192.168.12.84
+          </span>
+        </div>
       </div>
       
       {/* Metrics & Dial Row */}
@@ -581,88 +705,59 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* SCA & Security Posture Scanner Panel */}
+        {/* Threat prevalence (Horizontal Bar Chart) */}
         <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <h3 className="sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Radio size={16} className={isScanning ? "spin" : ""} style={{ color: 'var(--accent-cyan)' }} />
-            SCA & Security Posture Audit Scanner
+            <BarChart3 size={16} style={{ color: 'var(--accent-cyan)' }} />
+            Annual Penetration Vector Distribution
           </h3>
-
-
-          {isScanning && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0' }}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                {/* Rolling SVG Radar Sweep */}
-                <div style={{ width: '60px', height: '60px', flexShrink: 0, position: 'relative' }}>
-                  <svg width="60" height="60" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="38" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
-                    <circle cx="40" cy="40" r="26" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
-                    <circle cx="40" cy="40" r="14" fill="none" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="1" />
-                    <line x1="40" y1="2" x2="40" y2="78" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
-                    <line x1="2" y1="40" x2="78" y2="40" stroke="rgba(0, 242, 254, 0.15)" strokeWidth="0.8" />
-                    <line 
-                      x1="40" y1="40" x2="40" y2="2" 
-                      stroke="var(--accent-cyan)" 
-                      strokeWidth="1.5" 
-                      style={{
-                        transformOrigin: '40px 40px',
-                        animation: 'spin-clockwise 2s linear infinite'
-                      }}
-                    />
-                    {scanProgress > 30 && <circle cx="28" cy="22" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
-                    {scanProgress > 60 && <circle cx="55" cy="50" r="3" fill="var(--accent-red)" style={{ filter: 'drop-shadow(0 0 3px var(--accent-red))' }} />}
-                  </svg>
-                </div>
-
-                {/* Progress bar info */}
-                <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
-                    <span style={{ color: 'var(--accent-cyan)' }}>Auditing codebase modules...</span>
-                    <span>{scanProgress}%</span>
-                  </div>
-                  <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${scanProgress}%`, background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', transition: 'width 0.3s ease-out' }}></div>
-                  </div>
-                </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Prevailing exploit techniques classified by global breach logs.</p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {/* Bar 1 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                <span>Supply Chain Injection (Log4j/XZ Utils)</span>
+                <span style={{ color: 'var(--accent-red)' }}>38%</span>
               </div>
-
-              {/* Scrolling Logs Console */}
-              <div className="scanner-log-console" style={{ height: '90px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '6px', padding: '0.4rem', fontFamily: 'var(--font-mono)', fontSize: '0.6rem' }}>
-                {scanLogs.map((log, idx) => (
-                  <div key={idx} style={{ color: log.includes('Found') ? 'var(--accent-red)' : 'var(--accent-emerald)', marginBottom: '0.15rem' }}>
-                    &gt; {log}
-                  </div>
-                ))}
+              <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: '38%', background: 'linear-gradient(90deg, var(--accent-red), #e01b44)', borderRadius: '4px' }}></div>
               </div>
             </div>
-          )}
 
-          {hasScanned && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.5rem 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>✓ Audit Verification Complete</span>
-                <button 
-                  className="btn-primary"
-                  style={{ 
-                    background: 'transparent',
-                    border: '1px solid rgba(0, 242, 254, 0.25)',
-                    color: 'var(--accent-cyan)',
-                    boxShadow: 'none',
-                    padding: '0.3rem 0.6rem',
-                    fontSize: '0.7rem'
-                  }}
-                  onClick={onResetScan}
-                >
-                  Re-Audit
-                </button>
+            {/* Bar 2 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                <span>Identity Spoofing & Phishing (AiTM Cookie Theft)</span>
+                <span style={{ color: 'var(--accent-amber)' }}>29%</span>
               </div>
-              <div className="scanner-log-console" style={{ height: '90px', background: '#02040a', border: '1px solid var(--border-muted)', borderRadius: '6px', padding: '0.4rem', fontFamily: 'var(--font-mono)', fontSize: '0.6rem' }}>
-                <div style={{ color: 'var(--accent-emerald)', marginBottom: '0.15rem' }}>&gt; Audit check complete. Posture rating compiled.</div>
-                <div style={{ color: 'var(--accent-cyan)', marginBottom: '0.15rem' }}>&gt; Codebase state: Verified.</div>
-                <div style={{ color: 'var(--accent-emerald)', marginBottom: '0.15rem' }}>&gt; CVE scanning: 0 unmitigated risks in SBOM target.</div>
+              <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: '29%', background: 'linear-gradient(90deg, var(--accent-amber), #d6ab00)', borderRadius: '4px' }}></div>
               </div>
             </div>
-          )}
+
+            {/* Bar 3 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                <span>Broken API Authorization (BOLA/IDOR)</span>
+                <span style={{ color: 'var(--accent-purple)' }}>22%</span>
+              </div>
+              <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: '22%', background: 'linear-gradient(90deg, var(--accent-purple), #7c3aed)', borderRadius: '4px' }}></div>
+              </div>
+            </div>
+
+            {/* Bar 4 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600 }}>
+                <span>Adversarial Prompt Injections</span>
+                <span style={{ color: 'var(--accent-cyan)' }}>11%</span>
+              </div>
+              <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: '11%', background: 'linear-gradient(90deg, var(--accent-cyan), #00b8ff)', borderRadius: '4px' }}></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
